@@ -49,11 +49,12 @@ export default function ShowTask({ list, DeleteHandler, updateList }) {
                         <input
                           type="text"
                           name="task"
-                          defaultValue={task.task}
+                          defaultValue=""
+                          placeholder="Edit Task"
                         />
-                        <input type="text" name="det" defaultValue={task.det} />
+                        <input type="text" name="det" style={{marginTop: "5px", marginBottom: "5px"}} defaultValue="" placeholder="Edit Description" />
                         <button type="submit">Save</button>
-                        <button type="button" onClick={handleCancelClick}>
+                        <button className="midSize-btn" type="button" onClick={handleCancelClick}>
                           Cancel
                         </button>
                       </form>
