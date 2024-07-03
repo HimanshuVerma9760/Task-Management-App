@@ -20,7 +20,7 @@ export default function ShowTask({ list, DeleteHandler, updateList }) {
       det: event.target.elements.det.value,
     };
 
-    updateList(taskId, updatedTaskData); // Assuming updateList takes taskId as argument
+    updateList(taskId, updatedTaskData);
     setEditingTaskId(null);
   };
 
