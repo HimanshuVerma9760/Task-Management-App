@@ -44,9 +44,27 @@
     font-size: 1.2em;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    margin-top: 5px;
   }
   
   button[type="submit"]:hover {
+    background-color: #45a049;
+  }
+  
+  button[type="button"] {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  button[type="button"]:hover {
     background-color: #45a049;
   }
   
