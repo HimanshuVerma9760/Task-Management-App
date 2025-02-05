@@ -8,6 +8,8 @@ import {
   Typography,
 } from "@mui/material";
 
+import {motion} from 'motion/react'
+
 import { useState, useEffect } from "react";
 import { Form, useSubmit } from "react-router-dom";
 import ModalContent from "./Modal/ModalContent";
