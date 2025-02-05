@@ -11,5 +11,5 @@ export const TasksLoader = async () => {
     return response;
   } else {
     return result.message;
-  }
+  } 
 };
