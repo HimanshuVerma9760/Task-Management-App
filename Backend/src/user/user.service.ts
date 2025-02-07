@@ -1,9 +1,15 @@
-import { BadRequestException, HttpException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { userDTO } from 'src/dto/user.dto';
+import { userDTO, userSignInDTO } from 'src/dto/user.dto';
 import { userSchema } from 'src/schema/user.model';
 import * as bcrypt from 'bcrypt';
+import * as jwt from 'jsonwebtoken';
 
 @Injectable()
 export default class UserService {
@@ -11,7 +17,7 @@ export default class UserService {
     @InjectModel('users') private userModel: Model<typeof userSchema>,
   ) {}
 
-  async checkUserName(userName: String) {
+  async checkUserName(userName: string) {
     try {
       console.log(userName);
       const exsistingUser = await this.userModel.findOne({
@@ -27,7 +33,7 @@ export default class UserService {
       throw new HttpException('Username already exsist!!', 500);
     }
   }
-  async checkUserEmail(userEmail: String) {
+  async checkUserEmail(userEmail: string) {
     try {
       const exsistingUser = await this.userModel.findOne({
         email: userEmail,
@@ -76,5 +82,49 @@ export default class UserService {
       }
       return { result, message: 'Successfully Added!' };
     }
+  }
+
+  async verifyValidUserWithToken(userName: string) {
+    let verifiedUser: any;
+    try {
+      verifiedUser = await this.userModel.findOne({ userName: userName });
+    } catch (error) {
+      return { result: false };
+    }
+    if (verifiedUser) {
+      return { result: true };
+    } else {
+      return { result: false };
+    }
+  }
+
+  async userLogin(userName: string, password: string) {
+    let user: any;
+    try {
+      user = await this.userModel.findOne({
+        userName: userName,
+      });
+    } catch (error) {
+      throw new UnauthorizedException('Invalid Credentials!');
+    }
+    if (user) {
+      console.log(user);
+      const checkPass = await bcrypt.compare(password, user.password);
+      if (checkPass) {
+        const tokenData = {
+          id: user._id,
+          userName: user.userName,
+          fullName: user.fullName,
+          email: user.email,
+        };
+        const token = jwt.sign(tokenData, `${process.env.SECRET_KEY}`, {
+          expiresIn: '1h',
+        });
+        console.log(token);
+        return { response: true, token };
+      }
+      throw new UnauthorizedException('Invalid Credentials!');
+    }
+    throw new UnauthorizedException('Invalid Credentials!');
   }
 }

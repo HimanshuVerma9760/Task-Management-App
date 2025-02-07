@@ -15,6 +15,7 @@ import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
 import LastPageIcon from "@mui/icons-material/LastPage";
 import {
+  CircularProgress,
   Grid2,
   ListItemButton,
   MenuItem,
@@ -25,6 +26,7 @@ import {
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import ModalContent from "./Modal/ModalContent";
+import useAuth from "../util/hooks/useAuth";
 
 function TablePaginationActions(props) {
   const theme = useTheme();
@@ -102,14 +104,18 @@ function createData(id, taskName, taskDate, taskPriority) {
 export default function CustomPaginationActionsTable() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showSignupPrompt, setShowSignupPrompt] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setShowSignupPrompt(true);
-    } else {
-      setIsAuthenticated(true);
+    async function checkAuth(params) {
+      const token = await useAuth();
+      if (!token.result) {
+        setShowSignupPrompt(true);
+      } else {
+        setIsAuthenticated(true);
+      }
     }
+    checkAuth();
   }, []);
 
   const handleCloseSignupPrompt = () => {
@@ -142,30 +148,36 @@ export default function CustomPaginationActionsTable() {
 
   useEffect(() => {
     async function fetchData() {
-      try {
-        const response = await fetch(
-          `http://localhost:3000/tasks?page=${
-            page + 1
-          }&limit=${rowsPerPage}&s=${priorityFilter}`
-        );
-        if (!response.ok) {
-          console.log(response.statusText);
-        } else {
-          const result = await response.json();
-          console.log(result);
-          setMyTasks(result.allTasks);
-          setTotalTasks(result.totalTasks);
-          console.log(result);
-          console.log("Tasks fetched successfully!");
+      const verifyToken = await useAuth();
+      if (verifyToken.result) {
+        try {
+          const response = await fetch(
+            `http://localhost:3000/tasks/${localStorage.getItem(
+              "token"
+            )}/?page=${page + 1}&limit=${rowsPerPage}&s=${priorityFilter}`
+          );
+          if (response) {
+            setIsLoading(false);
+            if (response.ok) {
+              const result = await response.json();
+              console.log(result);
+              setMyTasks(result.allTasks);
+              setTotalTasks(result.totalTasks);
+              console.log(result);
+              console.log("Tasks fetched successfully!");
+            }
+          }
+        } catch (error) {
+          console.error("Something went wrong..!!", error);
         }
-      } catch (error) {
-        console.error("Something went wrong..!!", error);
+      } else {
       }
     }
     fetchData();
   }, [page, rowsPerPage, priorityFilter]);
 
-  const rows = myTasks.map((eachTask) =>
+  let rows;
+  rows = myTasks.map((eachTask) =>
     createData(
       eachTask._id,
       eachTask.taskName,
@@ -178,10 +190,28 @@ export default function CustomPaginationActionsTable() {
       <ModalContent
         isOpen={showSignupPrompt}
         onClose={handleCloseSignupPrompt}
+        message={{
+          message: "Sign Up Required",
+          caption: "You need to sign up to add tasks.",
+        }}
+        btn={{ text: "Go to Sign up", loc: "/" }}
       />
     );
   }
-
+  if (isLoading) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center" }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+  if ( !isLoading && myTasks.length === 0) {
+    return (
+      <Typography variant="h5" color="red" align="center">
+        No Tasks
+      </Typography>
+    );
+  }
   return (
     <Box>
       <Grid2

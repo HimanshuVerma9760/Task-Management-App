@@ -8,23 +8,28 @@ import {
   Typography,
 } from "@mui/material";
 
-import {motion} from 'motion/react'
+import { motion } from "motion/react";
 
 import { useState, useEffect } from "react";
 import { Form, useSubmit } from "react-router-dom";
 import ModalContent from "./Modal/ModalContent";
+import useAuth from "../util/hooks/useAuth";
 
 export default function InputBox() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showSignupPrompt, setShowSignupPrompt] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setShowSignupPrompt(true);
-    } else {
-      setIsAuthenticated(true);
+    async function checkAuth() {
+      const token = await useAuth();
+      console.log(token.result);
+      if (!token.result) {
+        setShowSignupPrompt(true);
+      } else {
+        setIsAuthenticated(true);
+      }
     }
+    checkAuth();
   }, []);
 
   const handleCloseSignupPrompt = () => {
@@ -95,6 +100,11 @@ export default function InputBox() {
         <ModalContent
           isOpen={showSignupPrompt}
           onClose={handleCloseSignupPrompt}
+          message={{
+            message: "Sign Up Required",
+            caption: "You need to sign up to add tasks.",
+          }}
+          btn={{ text: "Go to Sign up", loc: "/" }}
         />
       ) : (
         <motion.div

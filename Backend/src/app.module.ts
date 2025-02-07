@@ -5,8 +5,11 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { taskSchema } from './schema/task.model';
 import { config } from 'dotenv';
 import { userSchema } from './schema/user.model';
+// import { AuthModule } from './auth/auth.module';
 import UserController from './user/user.controller';
 import UserService from './user/user.service';
+import AuthController from './user/auth/auth.controller';
+import { AuthService } from './user/auth/auth.service';
 config();
 @Module({
   imports: [
@@ -15,8 +18,9 @@ config();
       { name: 'tasks', schema: taskSchema },
       { name: 'users', schema: userSchema },
     ]),
+    // AuthModule,
   ],
-  controllers: [TaskController, UserController],
-  providers: [TaskService, UserService],
+  controllers: [TaskController, UserController, AuthController],
+  providers: [TaskService, UserService, AuthService],
 })
 export class AppModule {}

@@ -3,7 +3,7 @@ import Portal from "./Portal";
 import { Box, Button, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
 
-const ModalContent = ({ isOpen, onClose }) => {
+const ModalContent = ({ isOpen, onClose, message, btn }) => {
   if (!isOpen) return null;
 
   return (
@@ -17,14 +17,14 @@ const ModalContent = ({ isOpen, onClose }) => {
         }}
       >
         <Typography variant="h4" sx={{ marginBottom: "10px" }}>
-          Sign Up Required
+          {message.message}
         </Typography>
         <Typography variant="caption" color="red">
-          You need to sign up to add tasks.
+          {message.caption}
         </Typography>
         <Button>
-          <Link to="/" style={{ textDecoration: "none" }}>
-            Go to Signup
+          <Link to={btn.loc} style={{ textDecoration: "none" }}>
+            {btn.text}
           </Link>
         </Button>
       </Box>

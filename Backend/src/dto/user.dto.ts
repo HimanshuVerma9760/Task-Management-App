@@ -8,12 +8,12 @@ export class userDTO {
   @IsString()
   @IsNotEmpty()
   @Matches(/^[^0-9]*$/, { message: 'Name must not contain numbers' })
-  fullName: String;
+  fullName: string;
 
   @IsString()
   @IsNotEmpty()
   @IsEmail()
-  email: String;
+  email: string;
 
   @IsString()
   @IsNotEmpty()
@@ -23,7 +23,7 @@ export class userDTO {
 export class userSignInDTO {
   @IsString()
   @IsNotEmpty()
-  username: string;
+  userName: string;
 
   @IsString()
   @IsNotEmpty()

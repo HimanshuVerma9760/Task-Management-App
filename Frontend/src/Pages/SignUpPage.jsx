@@ -5,20 +5,44 @@ import {
   VisibilityOff,
 } from "@mui/icons-material";
 const Conn = import.meta.env.VITE_CONN_URI;
+// import { Tooltip } from "react-tooltip";
 import {
   Box,
   Button,
+  CircularProgress,
   Grid2,
   IconButton,
   InputAdornment,
+  styled,
   TextField,
+  Tooltip,
+  tooltipClasses,
   Typography,
 } from "@mui/material";
 import { motion } from "motion/react";
-import { useState } from "react";
-import { Form } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Form, useNavigate } from "react-router-dom";
+import ModalContent from "../components/Modal/ModalContent";
+import useAuth from "../util/hooks/useAuth";
+import CustomPaginationActionsTable from "../components/CustomPaginationActionsTable";
 
 export default function SignUpPage() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const navigate = useNavigate();
+  useEffect(() => {
+    async function checkAuth() {
+      const verifiedUser = await useAuth();
+      if (verifiedUser.result) {
+        setIsLoggedIn(true);
+      }
+      setIsLoading(false);
+    }
+    checkAuth();
+  }, []);
+
+  const [showSignupPrompt, setShowSignupPrompt] = useState(false);
+
   const [userName, setUserName] = useState("");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -28,6 +52,7 @@ export default function SignUpPage() {
   const [isChecked, setIsChecked] = useState(false);
   const [message, setMessage] = useState("");
   const [res, setRes] = useState("");
+  const [isSignedUp, setIsSignedUp] = useState(false);
   const [errors, setErrors] = useState({
     userNameError: {
       state: false,
@@ -51,7 +76,33 @@ export default function SignUpPage() {
     },
   });
 
+  const handleCloseSignupPrompt = () => {
+    setShowSignupPrompt(false);
+  };
+
+  const BootstrapTooltip = styled(({ className, ...props }) => (
+    <Tooltip {...props} arrow classes={{ popper: className }} />
+  ))(({ theme }) => ({
+    [`& .${tooltipClasses.arrow}`]: {
+      color: theme.palette.common.black,
+    },
+    [`& .${tooltipClasses.tooltip}`]: {
+      backgroundColor: theme.palette.common.black,
+    },
+  }));
+
   async function checkUserName(userName) {
+    if (userName.trim().length === 0) {
+      setErrors((prevState) => ({
+        ...prevState,
+        userNameError: {
+          ...prevState.userNameError,
+          state: true,
+          message: "Invalid Name!!",
+        },
+      }));
+      return;
+    }
     const user = {
       userName: userName,
     };
@@ -95,7 +146,10 @@ export default function SignUpPage() {
         let nameArr = value.split("");
         for (let index = 0; index < nameArr.length; index++) {
           const element = nameArr[index];
-          if (!isNaN(element)) {
+          if (
+            (!isNaN(element) && element !== " ") ||
+            value.trim().length === 0
+          ) {
             setErrors((prevState) => ({
               ...prevState,
               fullNameError: {
@@ -139,7 +193,6 @@ export default function SignUpPage() {
         }));
         break;
       case "password":
-        console.log(value);
         let passArr = value.split("");
         if (value.length < 8) {
           setErrors((prevState) => ({
@@ -150,6 +203,7 @@ export default function SignUpPage() {
               message: "Password must be atleast 8 character long!",
             },
           }));
+          return;
         }
         for (let index = 0; index < passArr.length; index++) {
           const element = passArr[index];
@@ -261,132 +315,178 @@ export default function SignUpPage() {
     if (!response.ok) {
       setMessage("Error! while signup");
     } else {
-      setMessage("Signup Successfull");
+      setMessage("Sign up Successfull");
+      setShowSignupPrompt(true);
+      setIsSignedUp(true);
     }
   };
+
+  if (isSignedUp) {
+    return (
+      <>
+        <ModalContent
+          isOpen={showSignupPrompt}
+          onClose={handleCloseSignupPrompt}
+          message={{
+            message: "Sign Up Successfull",
+            caption: "Kindly Login",
+          }}
+          btn={{
+            text: "Go to Log in",
+            loc: "/user-login",
+          }}
+        />
+      </>
+    );
+  }
+
   return (
     <>
-      <motion.div
-        initial={{ opacity: 0, y: -50 }}
-        animate={{ opacity: 1, y: 0, transition: "1.8s" }}
-      >
-        <Box align="center">
-          <Grid2 sx={{ marginBottom: "1rem" }}>
-            <Typography variant="h4" sx={{ marginBottom: "10px" }}>
-              Sign Up
-            </Typography>
-            <Typography
-              variant="caption"
-              color={message.includes("Error") ? "error" : "green"}
-            >
-              {message}
-            </Typography>
-          </Grid2>
-          <Form onSubmit={addUserHandler}>
-            <Grid2
-              display="flex"
-              flexDirection="column"
-              gap={2}
-              sx={{ width: "40%" }}
-            >
-              <TextField
-                name="userName"
-                id="userName"
-                label="Choose a Username for yourself"
-                value={userName}
-                error={errors.userNameError.state}
-                helperText={
-                  errors.userNameError.state && errors.userNameError.message
-                }
-                onChange={onChangeHandler}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton onClick={() => checkUserName(userName)}>
-                        {!isChecked ? <CheckCircleOutline /> : <CheckCircle />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-              {isChecked && !errors.userNameError.state && (
-                <Typography variant="caption" color="blue">
-                  {res}
+      {!isLoading ? (
+        isLoggedIn ? (
+          <CustomPaginationActionsTable />
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: -50 }}
+            animate={{ opacity: 1, y: 0, transition: "1.8s" }}
+          >
+            <Box align="center">
+              <Grid2 sx={{ marginBottom: "1rem" }}>
+                <Typography variant="h4" sx={{ marginBottom: "10px" }}>
+                  Sign Up
                 </Typography>
-              )}
+                <Typography
+                  variant="caption"
+                  color={message.includes("Error") ? "error" : "green"}
+                >
+                  {message}
+                </Typography>
+              </Grid2>
+              <Form onSubmit={addUserHandler}>
+                <Grid2
+                  display="flex"
+                  flexDirection="column"
+                  gap={2}
+                  sx={{ width: "40%" }}
+                >
+                  <TextField
+                    name="userName"
+                    id="userName"
+                    label="Choose a Username for yourself"
+                    value={userName}
+                    error={errors.userNameError.state}
+                    helperText={
+                      errors.userNameError.state && errors.userNameError.message
+                    }
+                    onChange={onChangeHandler}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <BootstrapTooltip title="Check Username availability!">
+                            <IconButton
+                              onClick={() => checkUserName(userName)}
+                              sx={{ color: "#3f51b5" }}
+                            >
+                              {!isChecked ? (
+                                <CheckCircleOutline />
+                              ) : (
+                                <CheckCircle />
+                              )}
+                            </IconButton>
+                          </BootstrapTooltip>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                  {isChecked && !errors.userNameError.state && (
+                    <Typography variant="caption" color="#3f51b5">
+                      {res}
+                    </Typography>
+                  )}
 
-              <TextField
-                value={fullName}
-                disabled={!isChecked}
-                name="fullName"
-                label="Full Name"
-                onBlur={onBlurHandler}
-                id="fullName"
-                error={errors.fullNameError.state}
-                helperText={
-                  errors.fullNameError.state && errors.fullNameError.message
-                }
-                onChange={onChangeHandler}
-              />
-              <TextField
-                name="email"
-                disabled={!isChecked}
-                id="email"
-                onBlur={onBlurHandler}
-                label="Enter Email"
-                value={email}
-                error={errors.emailError.state}
-                helperText={
-                  errors.emailError.state && errors.emailError.message
-                }
-                onChange={onChangeHandler}
-              />
-              <TextField
-                name="password"
-                disabled={!isChecked}
-                label="Enter Password"
-                type={isVisible ? "text" : "password"}
-                id="password"
-                value={password}
-                error={errors.passwordError.state}
-                helperText={
-                  errors.passwordError.state && errors.passwordError.message
-                }
-                onChange={onChangeHandler}
-                onBlur={onBlurHandler}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        onClick={() => setIsVisible((prevState) => !prevState)}
-                      >
-                        {!isVisible ? <VisibilityOff /> : <Visibility />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-              <TextField
-                name="confirmPassword"
-                label="Confirm Password"
-                disabled={!isChecked}
-                id="confirmPassword"
-                value={confirmPassword}
-                error={errors.confirmPasswordError.state}
-                onChange={onChangeHandler}
-                onBlur={onBlurHandler}
-                helperText={
-                  errors.confirmPasswordError.state &&
-                  errors.confirmPasswordError.message
-                }
-              />
-              <Button disabled={!isChecked} type="submit">
-                Sign up
-              </Button>
-            </Grid2>
-          </Form>
-        </Box>
-      </motion.div>
+                  <TextField
+                    value={fullName}
+                    disabled={!isChecked}
+                    name="fullName"
+                    label="Full Name"
+                    onBlur={onBlurHandler}
+                    id="fullName"
+                    error={errors.fullNameError.state}
+                    helperText={
+                      errors.fullNameError.state && errors.fullNameError.message
+                    }
+                    onChange={onChangeHandler}
+                  />
+                  <TextField
+                    name="email"
+                    disabled={!isChecked}
+                    id="email"
+                    onBlur={onBlurHandler}
+                    label="Enter Email"
+                    value={email}
+                    error={errors.emailError.state}
+                    helperText={
+                      errors.emailError.state && errors.emailError.message
+                    }
+                    onChange={onChangeHandler}
+                  />
+                  <TextField
+                    name="password"
+                    disabled={!isChecked}
+                    label="Enter Password"
+                    type={isVisible ? "text" : "password"}
+                    id="password"
+                    value={password}
+                    error={errors.passwordError.state}
+                    helperText={
+                      errors.passwordError.state && errors.passwordError.message
+                    }
+                    onChange={onChangeHandler}
+                    onBlur={onBlurHandler}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={() =>
+                              setIsVisible((prevState) => !prevState)
+                            }
+                            sx={{ color: "#3f51b5" }}
+                          >
+                            {!isVisible ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                  <TextField
+                    name="confirmPassword"
+                    label="Confirm Password"
+                    disabled={!isChecked}
+                    id="confirmPassword"
+                    value={confirmPassword}
+                    error={errors.confirmPasswordError.state}
+                    onChange={onChangeHandler}
+                    onBlur={onBlurHandler}
+                    helperText={
+                      errors.confirmPasswordError.state &&
+                      errors.confirmPasswordError.message
+                    }
+                  />
+                  <Button disabled={!isChecked} type="submit">
+                    Sign up
+                  </Button>
+                </Grid2>
+              </Form>
+            </Box>
+          </motion.div>
+        )
+      ) : (
+        <>
+          <Box sx={{ display: "flex", justifyContent: "center" }}>
+            <CircularProgress />
+          </Box>
+        </>
+      )}
     </>
   );
 }

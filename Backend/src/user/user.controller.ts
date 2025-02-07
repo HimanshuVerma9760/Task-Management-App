@@ -11,8 +11,12 @@ export default class UserController {
     return this.userService.addUser(user);
   }
   @Post('/verify-user-name')
-  async checkUserName(@Body() userName:{userName:String}) {
-    console.log("controller",userName)
+  async checkUserName(@Body() userName: { userName: string }) {
+    console.log('controller', userName);
     return this.userService.checkUserName(userName.userName);
+  }
+  @Post('/user-login')
+  userLogin(@Body() user: userSignInDTO) {
+    return this.userService.userLogin(user.userName, user.password);
   }
 }

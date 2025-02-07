@@ -1,6 +1,6 @@
 export default class taskDTO {
-  taskName: string;
-  taskDetails: string;
+  taskName: String;
+  taskDetails: String;
   taskDate: Date;
-  taskPriority: string;
+  taskPriority: String;
 }

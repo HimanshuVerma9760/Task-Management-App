@@ -1,4 +1,13 @@
-import { AppBar, Box, Grid2, IconButton, Typography } from "@mui/material";
+import {
+  AppBar,
+  Box,
+  Grid2,
+  IconButton,
+  styled,
+  Tooltip,
+  tooltipClasses,
+  Typography,
+} from "@mui/material";
 import {
   Help,
   AccountCircle,
@@ -7,11 +16,42 @@ import {
   TaskSharp,
   Home,
   AddTask,
+  Login,
+  Logout,
 } from "@mui/icons-material";
-import { Link, Outlet } from "react-router-dom";
-import { useState } from "react";
+import { Link, Outlet, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import useAuth from "../util/hooks/useAuth";
 
 export default function Header() {
+  const nav = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  
+
+  useEffect(() => {
+    async function checkLogin() {
+      const verifiedUser = await useAuth();
+      if (verifiedUser.result) {
+        setIsLoggedIn(true);
+      } else {
+        localStorage.removeItem("token");
+      }
+    }
+    checkLogin();
+  }, []);
+
+  const LightTooltip = styled(({ className, ...props }) => (
+    <Tooltip {...props} classes={{ popper: className }} />
+  ))(({ theme }) => ({
+    [`& .${tooltipClasses.tooltip}`]: {
+      backgroundColor: theme.palette.common.white,
+      color: "rgba(0, 0, 0, 0.87)",
+      boxShadow: theme.shadows[1],
+      fontSize: 11,
+    },
+  }));
+
+ 
   return (
     <>
       <AppBar
@@ -30,33 +70,59 @@ export default function Header() {
             variant="ul"
             sx={{ display: "flex", listStyle: "none", gap: "1rem" }}
           >
-            <IconButton sx={{ color: "white" }}>
-              <AccountCircle />
-            </IconButton>
-            <IconButton sx={{ color: "white" }}>
-              <Link to="/">
-                <Home sx={{ color: "white" }} />
-              </Link>
-            </IconButton>
-            <IconButton sx={{ color: "white" }}>
-              <Help />
-            </IconButton>
-            <IconButton sx={{ color: "white" }}>
-              <MessageSharp />
-            </IconButton>
-            <IconButton sx={{ color: "white" }}>
-              <Settings />
-            </IconButton>
-            <IconButton >
-              <Link to='/add-task-page' style={{color:"white"}}>
-                <AddTask />
-              </Link>
-            </IconButton>
-            <IconButton >
-              <Link to='/my-task-list' style={{color:"white"}}>
-                <TaskSharp />
-              </Link>
-            </IconButton>
+            {isLoggedIn && (
+              <LightTooltip title="Profile">
+                <IconButton sx={{ color: "white" }}>
+                  <Link to="/user-profile">
+                    <AccountCircle sx={{ color: "white" }} />
+                  </Link>
+                </IconButton>
+              </LightTooltip>
+            )}
+
+            <LightTooltip title="Home">
+              <IconButton sx={{ color: "white" }}>
+                <Link to="/">
+                  <Home sx={{ color: "white" }} />
+                </Link>
+              </IconButton>
+            </LightTooltip>
+            <LightTooltip title="Add Task">
+              <IconButton>
+                <Link to="/add-task-page" style={{ color: "white" }}>
+                  <AddTask />
+                </Link>
+              </IconButton>
+            </LightTooltip>
+            <LightTooltip title="Your Tasks">
+              <IconButton>
+                <Link to="/my-task-list" style={{ color: "white" }}>
+                  <TaskSharp />
+                </Link>
+              </IconButton>
+            </LightTooltip>
+            <LightTooltip title="Login">
+              <IconButton>
+                <Link to="/user-login" style={{ color: "white" }}>
+                  <Login />
+                </Link>
+              </IconButton>
+            </LightTooltip>
+            {isLoggedIn && (
+              <LightTooltip title="Logout">
+                <IconButton
+                  sx={{ color: "white" }}
+                  onClick={() => {
+                    localStorage.removeItem("token");
+                    nav("/user-login");
+                  }}
+                >
+                  <div>
+                    <Logout />
+                  </div>
+                </IconButton>
+              </LightTooltip>
+            )}
           </Typography>
         </Grid2>
       </AppBar>

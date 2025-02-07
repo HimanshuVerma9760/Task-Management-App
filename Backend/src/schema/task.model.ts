@@ -1,5 +1,4 @@
-import mongoose from 'mongoose';
-import { type } from 'os';
+import mongoose, { Schema } from 'mongoose';
 
 export const taskSchema = new mongoose.Schema({
   taskName: {
@@ -17,5 +16,13 @@ export const taskSchema = new mongoose.Schema({
   taskPriority: {
     type: String,
     required: true,
+  },
+  creator: {
+    type: Schema.Types.ObjectId,
+    required: true,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now(),
   },
 });

@@ -5,10 +5,10 @@ import TaskDetailPage from "./Pages/TaskDetailPage";
 import { TasksLoader } from "./util/TasksLoader";
 import { AddTaskAction } from "./util/AddTaskAction";
 import { TaskDetailLoader } from "./util/TaskDetailLoader";
-// import MyTaskList from "./Pages/MyTaskListPage";
 import CustomPaginationActionsTable from "./components/CustomPaginationActionsTable";
 import SignUpPage from "./Pages/SignUpPage";
-// import { UpdateTaskAction } from "./util/UpdateTaskAction";
+import UserLoginPage from "./Pages/UserLoginPage";
+import UserProfilePage from "./Pages/UserProfilePage";
 
 export default function App() {
   const router = createBrowserRouter([
@@ -32,8 +32,16 @@ export default function App() {
           element: <TaskDetailPage />,
         },
         {
+          path: "/user-login",
+          element: <UserLoginPage />,
+        },
+        {
           path: "/my-task-list",
           element: <CustomPaginationActionsTable />,
+        },
+        {
+          path: "/user-profile",
+          element: <UserProfilePage />,
         },
       ],
     },
