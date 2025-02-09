@@ -23,6 +23,10 @@ export const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now(),
   },
+  isVerified:{
+    type:Boolean,
+    default:false
+  },
   tasks: [
     {
       type: Schema.Types.ObjectId,

@@ -5,7 +5,6 @@ import {
   VisibilityOff,
 } from "@mui/icons-material";
 const Conn = import.meta.env.VITE_CONN_URI;
-// import { Tooltip } from "react-tooltip";
 import {
   Box,
   Button,
@@ -295,7 +294,6 @@ export default function SignUpPage() {
       confirmPassword !== password
     ) {
       setMessage("Error! Kindly Fill All Values Properly!!!");
-      console.log(message);
       return;
     }
     const formData = {
@@ -328,8 +326,8 @@ export default function SignUpPage() {
           isOpen={showSignupPrompt}
           onClose={handleCloseSignupPrompt}
           message={{
-            message: "Sign Up Successfull",
-            caption: "Kindly Login",
+            message: "Kindly verify your email!",
+            caption: "Verification link has been sent to your email!",
           }}
           btn={{
             text: "Go to Log in",

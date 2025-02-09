@@ -17,14 +17,19 @@ export class TaskService {
     @InjectModel('users') private userModel: Model<userDTO>,
   ) {}
 
-  async getTasks(page: number, limit: number, s: string, to: string) {
+  async getTasks(
+    page: number,
+    limit: number,
+    s: string,
+    to: string,
+    searchedData: string,
+  ) {
+    console.log('searchedData:', searchedData);
     const skip = (page - 1) * limit;
     const key = process.env.SECRET_KEY || 'Himanshu2512';
     let allTasks: any;
     let totalTasks: number;
-    console.log('verified Token:');
     const verifiedToken: any = jwt.verify(to, key);
-    console.log('verified Token: ', verifiedToken);
     if (s === 'Low' || s === 'Medium' || s === 'High') {
       allTasks = await this.taskModel
         .find({ taskPriority: s, creator: verifiedToken.id })
@@ -41,11 +46,23 @@ export class TaskService {
         .skip(skip)
         .limit(limit)
         .exec();
-      totalTasks = await this.taskModel.find({ creator: verifiedToken.id }).countDocuments().exec();
+      totalTasks = await this.taskModel
+        .find({ creator: verifiedToken.id })
+        .countDocuments()
+        .exec();
     }
     if (allTasks) {
+      let myTasks: any;
       if (allTasks.length > 0) {
-        return { allTasks, totalTasks };
+        if (searchedData === 'all') {
+          myTasks = allTasks;
+          return { myTasks, totalTasks };
+        }
+        myTasks = allTasks.filter((eachTask) => {
+          return eachTask.taskName.startsWith(searchedData);
+        });
+        totalTasks = myTasks.length;
+        return { myTasks, totalTasks };
       } else {
         console.log('No Tasks found');
         throw new HttpException('No Tasks Found!!', 404);
@@ -69,7 +86,6 @@ export class TaskService {
     } catch (err) {}
     try {
       if (findTask.length > 0) {
-        console.log('Duplicate entry!', findTask);
         throw new HttpException('Duplicate tasks!!', 404);
       } else {
         const result = await this.taskModel.updateOne(
@@ -80,7 +96,6 @@ export class TaskService {
           throw new HttpException('Task not found!', 404);
         }
         const response = await this.taskModel.findById(id);
-        console.log(response);
         return response;
       }
     } catch (error) {
@@ -116,7 +131,6 @@ export class TaskService {
       const task = new this.taskModel(newTask);
       const result = await task.save();
       if (result) {
-        console.log('');
         const userTask = await this.userModel.findByIdAndUpdate(
           verifiedToken.id,
           {
@@ -125,7 +139,6 @@ export class TaskService {
             },
           },
         );
-        console.log(userTask);
         return result;
       } else {
         throw new HttpException('Error while Adding Task!', 404);

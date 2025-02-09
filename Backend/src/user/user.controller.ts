@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import UserService from './user.service';
 import { userDTO, userSignInDTO } from 'src/dto/user.dto';
 
@@ -12,11 +12,14 @@ export default class UserController {
   }
   @Post('/verify-user-name')
   async checkUserName(@Body() userName: { userName: string }) {
-    console.log('controller', userName);
     return this.userService.checkUserName(userName.userName);
   }
   @Post('/user-login')
   userLogin(@Body() user: userSignInDTO) {
     return this.userService.userLogin(user.userName, user.password);
+  }
+  @Get('/verify-user-email/:to/:em')
+  verifyEmail(@Param('to') to: string, @Param('em') em: string) {
+    return this.userService.emailLinkVerify(to, em);
   }
 }

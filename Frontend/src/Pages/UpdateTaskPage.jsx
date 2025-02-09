@@ -48,7 +48,6 @@ export default function UpdateTaskPage({ taskDetails, onTaskUpdate }) {
       if (res.ok) {
         setMessage("Task Updated Successfully!");
         const updatedTask = await res.json();
-        console.log(updatedTask);
         onTaskUpdate(updatedTask);
       } else {
         setMessage("Duplicate Entry");

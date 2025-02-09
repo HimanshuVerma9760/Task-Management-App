@@ -17,6 +17,8 @@ import LastPageIcon from "@mui/icons-material/LastPage";
 import {
   CircularProgress,
   Grid2,
+  Input,
+  InputAdornment,
   ListItemButton,
   MenuItem,
   Select,
@@ -24,9 +26,10 @@ import {
   Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Form, Link } from "react-router-dom";
 import ModalContent from "./Modal/ModalContent";
 import useAuth from "../util/hooks/useAuth";
+import { Search } from "@mui/icons-material";
 
 function TablePaginationActions(props) {
   const theme = useTheme();
@@ -105,6 +108,7 @@ export default function CustomPaginationActionsTable() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showSignupPrompt, setShowSignupPrompt] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     async function checkAuth(params) {
@@ -141,38 +145,38 @@ export default function CustomPaginationActionsTable() {
     const value = event.target.value;
     switch (id) {
       case "priorityFilter":
+        setIsLoading(true);
         setPriorityFilter(value);
+        setMyTasks([]);
         break;
+      case "search":
+        setSearch(value);
     }
   }
-
-  useEffect(() => {
-    async function fetchData() {
-      const verifyToken = await useAuth();
-      if (verifyToken.result) {
-        try {
-          const response = await fetch(
-            `http://localhost:3000/tasks/${localStorage.getItem(
-              "token"
-            )}/?page=${page + 1}&limit=${rowsPerPage}&s=${priorityFilter}`
-          );
-          if (response) {
-            setIsLoading(false);
-            if (response.ok) {
-              const result = await response.json();
-              console.log(result);
-              setMyTasks(result.allTasks);
-              setTotalTasks(result.totalTasks);
-              console.log(result);
-              console.log("Tasks fetched successfully!");
-            }
+  async function fetchData() {
+    const verifyToken = await useAuth();
+    if (verifyToken.result) {
+      try {
+        const response = await fetch(
+          `http://localhost:3000/tasks/${localStorage.getItem("token")}/${
+            search.length === 0 ? "all" : search
+          }/?page=${page + 1}&limit=${rowsPerPage}&s=${priorityFilter}`
+        );
+        if (response) {
+          if (response.ok) {
+            const result = await response.json();
+            setMyTasks(result.myTasks);
+            setTotalTasks(result.totalTasks);
           }
-        } catch (error) {
-          console.error("Something went wrong..!!", error);
+          setIsLoading(false);
         }
-      } else {
+      } catch (error) {
+        console.error("Something went wrong..!!", error);
       }
+    } else {
     }
+  }
+  useEffect(() => {
     fetchData();
   }, [page, rowsPerPage, priorityFilter]);
 
@@ -198,31 +202,47 @@ export default function CustomPaginationActionsTable() {
       />
     );
   }
-  if (isLoading) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center" }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-  if ( !isLoading && myTasks.length === 0) {
-    return (
-      <Typography variant="h5" color="red" align="center">
-        No Tasks
-      </Typography>
-    );
+
+  async function onSubmitHandler(event) {
+    event.preventDefault();
+    setMyTasks([]);
+    setIsLoading(true);
+    fetchData();
   }
   return (
     <Box>
       <Grid2
         sx={{
           display: "flex",
-          justifyContent: "right",
+          justifyContent: "space-evenly",
           height: "2rem",
-          marginRight: "12rem",
-          marginBottom: "1rem",
+          marginBottom: "1.5rem",
         }}
       >
+        <Grid2>
+          <Form onSubmit={onSubmitHandler}>
+            <Input
+              type="search"
+              disableUnderline
+              id="search"
+              name="search"
+              value={search}
+              placeholder="Search by Task Name"
+              onChange={onChangeHandler}
+              sx={{
+                backgroundColor: "whitesmoke",
+                borderRadius: "15px",
+                width: "35rem",
+                height: "2rem",
+                padding: "1.2rem",
+              }}
+            />
+            <IconButton type="submit">
+              <Search />
+            </IconButton>
+          </Form>
+        </Grid2>
+
         <Select
           value={priorityFilter}
           name="priorityFilter"
@@ -237,16 +257,20 @@ export default function CustomPaginationActionsTable() {
           <MenuItem value="Low">Low</MenuItem>
           <MenuItem value="Medium">Medium</MenuItem>
           <MenuItem value="High">High</MenuItem>
-          <MenuItem value="All">All</MenuItem>
         </Select>
       </Grid2>
       <TableContainer
         component={Paper}
-        sx={{ maxWidth: "70%", margin: "auto" }}
+        sx={{
+          maxWidth: "70%",
+          margin: "auto",
+          paddingLeft: "2rem",
+          paddingRight: "2rem",
+        }}
       >
         <Table sx={{ minWidth: 500 }} aria-label="custom pagination table">
           <TableHead>
-            <TableRow>
+            <TableRow sx={{marginBottom:"2rem"}}>
               <TableCell>
                 <Typography variant="h5" color="green">
                   Name
@@ -265,24 +289,34 @@ export default function CustomPaginationActionsTable() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.map((row) => (
-              <TableRow key={row.id}>
-                <TableCell component="th" scope="row">
-                  <Link
-                    to={`/taskDetailPage/${row.id}`}
-                    style={{ textDecoration: "none", color: "black" }}
-                  >
-                    <ListItemButton>{row.taskName}</ListItemButton>
-                  </Link>
-                </TableCell>
-                <TableCell style={{ width: 160 }} align="right">
-                  {row.taskDate}
-                </TableCell>
-                <TableCell style={{ width: 160 }} align="right">
-                  {row.taskPriority}
-                </TableCell>
-              </TableRow>
-            ))}
+            {isLoading ? (
+              <Grid2 sx={{ display: "flex", justifyContent: "center" }}>
+                <CircularProgress />
+              </Grid2>
+            ) : myTasks.length === 0 ? (
+              <Typography variant="h5" color="red" align="center">
+                No Tasks
+              </Typography>
+            ) : (
+              rows.map((row) => (
+                <TableRow key={row.id}>
+                  <TableCell component="th" scope="row">
+                    <Link
+                      to={`/taskDetailPage/${row.id}`}
+                      style={{ textDecoration: "none", color: "black" }}
+                    >
+                      <ListItemButton>{row.taskName}</ListItemButton>
+                    </Link>
+                  </TableCell>
+                  <TableCell style={{ width: 160 }} align="right">
+                    {row.taskDate}
+                  </TableCell>
+                  <TableCell style={{ width: 160 }} align="right">
+                    {row.taskPriority}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
           <TableFooter>
             <TableRow>

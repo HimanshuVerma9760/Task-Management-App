@@ -22,7 +22,6 @@ export default function InputBox() {
   useEffect(() => {
     async function checkAuth() {
       const token = await useAuth();
-      console.log(token.result);
       if (!token.result) {
         setShowSignupPrompt(true);
       } else {

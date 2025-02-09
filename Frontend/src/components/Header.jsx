@@ -19,14 +19,20 @@ import {
   Login,
   Logout,
 } from "@mui/icons-material";
-import { Link, Outlet, useNavigate } from "react-router-dom";
+import {
+  Link,
+  Outlet,
+  useLocation,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
 import { useEffect, useState } from "react";
 import useAuth from "../util/hooks/useAuth";
 
 export default function Header() {
   const nav = useNavigate();
+  const navigation = useLocation();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  
 
   useEffect(() => {
     async function checkLogin() {
@@ -38,7 +44,7 @@ export default function Header() {
       }
     }
     checkLogin();
-  }, []);
+  }, [navigation.pathname]);
 
   const LightTooltip = styled(({ className, ...props }) => (
     <Tooltip {...props} classes={{ popper: className }} />
@@ -51,7 +57,6 @@ export default function Header() {
     },
   }));
 
- 
   return (
     <>
       <AppBar
@@ -82,7 +87,7 @@ export default function Header() {
 
             <LightTooltip title="Home">
               <IconButton sx={{ color: "white" }}>
-                <Link to="/">
+                <Link to={isLoggedIn ? "/welcome-user" : "/"}>
                   <Home sx={{ color: "white" }} />
                 </Link>
               </IconButton>
@@ -114,6 +119,7 @@ export default function Header() {
                   sx={{ color: "white" }}
                   onClick={() => {
                     localStorage.removeItem("token");
+                    setIsLoggedIn(false);
                     nav("/user-login");
                   }}
                 >

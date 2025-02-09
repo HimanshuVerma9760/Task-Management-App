@@ -34,7 +34,6 @@ const TaskDetailPage = () => {
   };
 
   const handleTaskUpdate = (updatedTask) => {
-    console.log("updatedTask: ", updatedTask);
     setTaskDetails(updatedTask);
   };
 

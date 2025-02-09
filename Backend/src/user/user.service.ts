@@ -4,6 +4,8 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
+
+import * as nodemailer from 'nodemailer';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { userDTO, userSignInDTO } from 'src/dto/user.dto';
@@ -48,6 +50,68 @@ export default class UserService {
       throw new HttpException('Internal server error!!', 500);
     }
   }
+
+  async emailLinkVerify(to: string, em: string) {
+    let user: any;
+    try {
+      user = await this.userModel.findOne({ email: em });
+    } catch (error) {
+      throw new UnauthorizedException('Not Authorised!');
+    }
+    if (user.isVerified === true) {
+      return { message: 'User Email Verified!', response: true };
+    }
+    try {
+      const isVerified = await bcrypt.compare(em, to);
+      if (isVerified) {
+        const result = await this.userModel.findOneAndUpdate(
+          { email: em },
+          {
+            $set: {
+              isVerified: true,
+            },
+          },
+        );
+        if (result) {
+          return { message: 'User Email Verified!', response: true };
+        } else {
+          console.log('error! while verifying');
+          throw new HttpException('Failed to verify user!', 404);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      throw new HttpException('Failed to verify!', 500);
+    }
+  }
+
+  emailVerification(userEmail: string, generatedHash: string) {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false,
+      auth: {
+        user: process.env.ADMIN_EMAIL,
+        pass: process.env.ADMIN_PASS,
+      },
+    });
+
+    async function main() {
+      const info = await transporter.sendMail({
+        from: '"Himanshu verma" <humnavaverma@gmail.com>',
+        to: `${userEmail}`,
+        subject: 'Hello, Welcome to TaskManager App',
+        text: 'Kindly click on below link to verify your email..!!',
+        html: `<a href="http://localhost:3000/verify-user-email/${generatedHash}/${userEmail}">Verify</a>`,
+      });
+
+      console.log('Message sent: %s', info.messageId);
+    }
+
+    main().catch(console.error);
+  }
+
   async addUser(user: userDTO) {
     const exsistingUser = await this.checkUserName(user.userName);
     if (!exsistingUser.response) {
@@ -70,7 +134,7 @@ export default class UserService {
         password: hashedPassword,
       };
       const newUser = new this.userModel(myUser);
-      let result: {};
+      let result: any;
       try {
         result = await newUser.save();
       } catch (error) {
@@ -80,6 +144,8 @@ export default class UserService {
           500,
         );
       }
+      const generatedHash = await bcrypt.hash(user.email, 10);
+      this.emailVerification(user.email, generatedHash);
       return { result, message: 'Successfully Added!' };
     }
   }
@@ -108,9 +174,14 @@ export default class UserService {
       throw new UnauthorizedException('Invalid Credentials!');
     }
     if (user) {
-      console.log(user);
       const checkPass = await bcrypt.compare(password, user.password);
       if (checkPass) {
+        if (!user.isVerified) {
+          return {
+            message: 'Kindly verify your email to login!',
+            response: 'not verified',
+          };
+        }
         const tokenData = {
           id: user._id,
           userName: user.userName,
@@ -120,7 +191,6 @@ export default class UserService {
         const token = jwt.sign(tokenData, `${process.env.SECRET_KEY}`, {
           expiresIn: '1h',
         });
-        console.log(token);
         return { response: true, token };
       }
       throw new UnauthorizedException('Invalid Credentials!');

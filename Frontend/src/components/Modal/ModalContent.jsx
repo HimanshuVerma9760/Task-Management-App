@@ -3,8 +3,12 @@ import Portal from "./Portal";
 import { Box, Button, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
 
-const ModalContent = ({ isOpen, onClose, message, btn }) => {
+const ModalContent = ({ isOpen, onClose, message, btn, type }) => {
   if (!isOpen) return null;
+
+  function resendHandler() {
+    console.log("resent");
+  }
 
   return (
     <Portal onClose={onClose}>
@@ -22,11 +26,17 @@ const ModalContent = ({ isOpen, onClose, message, btn }) => {
         <Typography variant="caption" color="red">
           {message.caption}
         </Typography>
-        <Button>
-          <Link to={btn.loc} style={{ textDecoration: "none" }}>
-            {btn.text}
-          </Link>
-        </Button>
+        {!type ? (
+          <Button>
+            <Link to={btn.loc} style={{ textDecoration: "none" }}>
+              {btn.text}
+            </Link>
+          </Button>
+        ) : (
+          <>
+            <Button onClick={resendHandler}>Resend</Button>
+          </>
+        )}
       </Box>
     </Portal>
   );

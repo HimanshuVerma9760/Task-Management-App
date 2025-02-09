@@ -16,20 +16,21 @@ import { userSignInDTO } from './dto/user.dto';
 export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
-  @Get('/tasks/:to')
+  @Get('/tasks/:to/:searchedData')
   async getTasks(
     @Query('page') page: number = 1,
     @Query('limit') limit: number,
     @Query('s') s: string,
     @Param('to') to: string,
+    @Param('searchedData') searchedData: string,
   ) {
-    console.log("token", to);
-    return this.taskService.getTasks(page, limit, s, to);
+    return this.taskService.getTasks(page, limit, s, to, searchedData);
   }
-  @Get('/detail/:id')
+  @Post('/detail/:id')
   getTaskDetail(@Param('id') id: string) {
     return this.taskService.getTaskDetail(id);
   }
+ 
   @Delete('/delete/:id')
   deleteTask(@Param('id') id: string) {
     return this.taskService.deleteTask(id);

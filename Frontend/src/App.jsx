@@ -9,6 +9,7 @@ import CustomPaginationActionsTable from "./components/CustomPaginationActionsTa
 import SignUpPage from "./Pages/SignUpPage";
 import UserLoginPage from "./Pages/UserLoginPage";
 import UserProfilePage from "./Pages/UserProfilePage";
+import WelcomePage from "./Pages/WelcomePage";
 
 export default function App() {
   const router = createBrowserRouter([
@@ -42,6 +43,10 @@ export default function App() {
         {
           path: "/user-profile",
           element: <UserProfilePage />,
+        },
+        {
+          path: "/welcome-user",
+          element: <WelcomePage />,
         },
       ],
     },

@@ -19,6 +19,7 @@ export default function UserLoginPage() {
   const [message, setMessage] = useState("");
   const [isVisible, setIsVisible] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isVerified, setIsVerified] = useState(true);
   const [showSignupPrompt, setShowSignupPrompt] = useState(false);
 
   useEffect(() => {
@@ -133,8 +134,13 @@ export default function UserLoginPage() {
     });
     if (response.ok) {
       const result = await response.json();
-      localStorage.setItem("token", result.token);
-      nav("/my-task-list");
+      if (result.response !== "not verified") {
+        localStorage.setItem("token", result.token);
+        nav("/welcome-user");
+      } else {
+        setShowSignupPrompt(true);
+        setIsVerified(false);
+      }
     } else {
       setMessage("Invalid Credentials");
     }
@@ -153,6 +159,20 @@ export default function UserLoginPage() {
           caption: "You need to logout to login again.",
         }}
         btn={{ text: "Tasks", loc: "/my-task-list" }}
+      />
+    );
+  }
+  if (!isVerified) {
+    return (
+      <ModalContent
+        isOpen={showSignupPrompt}
+        onClose={handleCloseSignupPrompt}
+        message={{
+          message: "Kindly Verify your Email first!",
+          caption: "You need to verify to login.",
+        }}
+        btn={{ text: "Resend", loc: null }}
+        type="btn"
       />
     );
   }
