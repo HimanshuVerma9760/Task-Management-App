@@ -71,7 +71,7 @@ export class TaskService {
       throw new HttpException('Internal Server Error!!', 500);
     }
   }
-  async getTaskDetail(id: String): Promise<typeof taskSchema | {}> {
+  async getTaskDetail(id: String) {
     const Task = await this.taskModel.findById(id).exec();
     if (Task) {
       return Task;

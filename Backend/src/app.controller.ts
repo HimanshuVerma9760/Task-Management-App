@@ -26,7 +26,7 @@ export class TaskController {
   ) {
     return this.taskService.getTasks(page, limit, s, to, searchedData);
   }
-  @Post('/detail/:id')
+  @Get('/detail/:id')
   getTaskDetail(@Param('id') id: string) {
     return this.taskService.getTaskDetail(id);
   }
