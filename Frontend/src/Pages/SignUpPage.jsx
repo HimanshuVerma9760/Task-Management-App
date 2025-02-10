@@ -370,6 +370,7 @@ export default function SignUpPage() {
                   <TextField
                     name="userName"
                     id="userName"
+                    autoFocus={true}
                     label="Choose a Username for yourself"
                     value={userName}
                     error={errors.userNameError.state}
@@ -449,6 +450,7 @@ export default function SignUpPage() {
                               setIsVisible((prevState) => !prevState)
                             }
                             sx={{ color: "#3f51b5" }}
+                            disabled={!isChecked}
                           >
                             {!isVisible ? <VisibilityOff /> : <Visibility />}
                           </IconButton>

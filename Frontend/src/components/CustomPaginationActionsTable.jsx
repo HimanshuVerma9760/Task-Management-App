@@ -322,7 +322,7 @@ export default function CustomPaginationActionsTable() {
             <TableRow>
               <TablePagination
                 rowsPerPageOptions={[5, 10, 25, { label: "All", value: -1 }]}
-                colSpan={3}
+                colSpan={2}
                 count={totalTasks}
                 rowsPerPage={rowsPerPage}
                 page={page}
@@ -331,7 +331,6 @@ export default function CustomPaginationActionsTable() {
                     inputProps: {
                       "aria-label": "rows per page",
                     },
-                    native: true,
                   },
                 }}
                 onPageChange={handleChangePage}

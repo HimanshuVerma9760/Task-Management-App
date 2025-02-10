@@ -295,10 +295,10 @@ export default function AddUser() {
       setMessage("Error! Kindly Fill All Values Properly!!!");
       return;
     }
-    const verifyToken=await useAdminAuth();
-    if(!verifyToken.response){
-        setShowSignupPrompt(true);
-        return;
+    const verifyToken = await useAdminAuth();
+    if (!verifyToken.response) {
+      setShowSignupPrompt(true);
+      return;
     }
     const formData = {
       userName,
@@ -331,8 +331,7 @@ export default function AddUser() {
           onClose={handleCloseSignupPrompt}
           message={{
             message: "Kindly Login",
-            caption:
-              "You are not allowed to perform this action!",
+            caption: "You are not allowed to perform this action!",
           }}
           btn={{
             text: "Go to Log in",
@@ -344,7 +343,6 @@ export default function AddUser() {
   }
   return (
     <>
-      {/* {!isLoading ? ( */}
       <motion.div
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0, transition: "1.8s" }}
@@ -371,6 +369,7 @@ export default function AddUser() {
               <TextField
                 name="userName"
                 id="userName"
+                autoFocus={true}
                 label="Choose a unique username"
                 value={userName}
                 error={errors.userNameError.state}
@@ -448,6 +447,7 @@ export default function AddUser() {
                       <IconButton
                         onClick={() => setIsVisible((prevState) => !prevState)}
                         sx={{ color: "#3f51b5" }}
+                        disabled={!isChecked}
                       >
                         {!isVisible ? <VisibilityOff /> : <Visibility />}
                       </IconButton>
