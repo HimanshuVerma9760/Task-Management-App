@@ -51,7 +51,7 @@ export default function WelcomePage() {
             >
               Let’s turn your to-do list into a done list! Ready to take control
               of your time? <Link to="/add-task-page" style={{textDecoration:"none"}}> Add Task now</Link> or{" "}
-              <Link style={{textDecoration:"none"}} to="/my-tasks-list">Check your current Tasks </Link>. Your productivity journey
+              <Link style={{textDecoration:"none"}} to="/my-task-list">Check your current Tasks </Link>. Your productivity journey
               begins here!
             </Typography>
           </Grid2>

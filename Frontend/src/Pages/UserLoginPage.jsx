@@ -1,10 +1,14 @@
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {
   Button,
+  CircularProgress,
   Grid2,
   IconButton,
   InputAdornment,
+  styled,
   TextField,
+  Tooltip,
+  tooltipClasses,
   Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
@@ -13,6 +17,7 @@ import useAuth from "../util/hooks/useAuth";
 import ModalContent from "../components/Modal/ModalContent";
 
 export default function UserLoginPage() {
+  const [isLoading, setIsLoading] = useState(false);
   const nav = useNavigate();
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
@@ -45,7 +50,16 @@ export default function UserLoginPage() {
       message: "",
     },
   });
-
+  const BootstrapTooltip = styled(({ className, ...props }) => (
+    <Tooltip {...props} arrow classes={{ popper: className }} />
+  ))(({ theme }) => ({
+    [`& .${tooltipClasses.arrow}`]: {
+      color: theme.palette.common.black,
+    },
+    [`& .${tooltipClasses.tooltip}`]: {
+      backgroundColor: theme.palette.common.black,
+    },
+  }));
   function onChangeHandler(event) {
     const id = event.target.id;
     const value = event.target.value;
@@ -121,6 +135,7 @@ export default function UserLoginPage() {
       console.log(message);
       return;
     }
+    setIsLoading(true);
     const formData = {
       userName,
       password,
@@ -144,6 +159,43 @@ export default function UserLoginPage() {
     } else {
       setMessage("Invalid Credentials");
     }
+    setIsLoading(false);
+  }
+  async function adminSubmitHandler() {
+    if (
+      errors.userNameError.state ||
+      errors.passwordError.state ||
+      password.trim().length === 0
+    ) {
+      setMessage("Error! Kindly Fill All Values Properly!!!");
+      console.log(message);
+      return;
+    }
+    const formData = {
+      userName,
+      password,
+    };
+    setIsLoading(true);
+    const response = await fetch("http://localhost:3000/admin/admin-login", {
+      method: "POST",
+      body: JSON.stringify(formData),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (response.ok) {
+      const result = await response.json();
+      if (result.response !== "not verified") {
+        localStorage.setItem("token", result.token);
+        nav("/admin");
+      } else {
+        setShowSignupPrompt(true);
+        setIsVerified(false);
+      }
+    } else {
+      setMessage("Invalid Credentials");
+    }
+    setIsLoading(false);
   }
 
   const handleCloseSignupPrompt = () => {
@@ -193,7 +245,7 @@ export default function UserLoginPage() {
             Login
           </Typography>
           <Typography variant="caption" color="red" align="center">
-            {message}
+            {isLoading ? <CircularProgress /> : message}
           </Typography>
           <TextField
             name="userName"
@@ -231,7 +283,37 @@ export default function UserLoginPage() {
               ),
             }}
           />
-          <Button type="submit">Login</Button>
+          <Grid2
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "right",
+              gap: "1rem",
+            }}
+          >
+            <Button
+              type="submit"
+              sx={{
+                paddingLeft: "1rem",
+                paddingRight: "1rem",
+                textAlign: "center",
+              }}
+            >
+              User Login
+            </Button>
+            <BootstrapTooltip title="Only for Admins">
+              <Button
+                onClick={adminSubmitHandler}
+                sx={{
+                  paddingLeft: "1rem",
+                  paddingRight: "1rem",
+                  textAlign: "center",
+                }}
+              >
+                Admin Login
+              </Button>
+            </BootstrapTooltip>
+          </Grid2>
         </Grid2>
       </Form>
     </>

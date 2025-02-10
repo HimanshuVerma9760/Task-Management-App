@@ -11,6 +11,9 @@ import UserLoginPage from "./Pages/UserLoginPage";
 import UserProfilePage from "./Pages/UserProfilePage";
 import WelcomePage from "./Pages/WelcomePage";
 import UserProfileLoader from "./util/UserProfileLoader";
+import AdminWelcomePage from "./Pages/Admin/Pages/AdminWelcomePage";
+import AdminHeader from "./Pages/Admin/Components/AdminHeader";
+import AddUser from "./Pages/Admin/Pages/AddUser";
 
 export default function App() {
   const router = createBrowserRouter([
@@ -49,6 +52,20 @@ export default function App() {
         {
           path: "/welcome-user",
           element: <WelcomePage />,
+        },
+      ],
+    },
+    {
+      path: "/admin",
+      element: <AdminHeader />,
+      children: [
+        {
+          path: "/admin",
+          element: <AdminWelcomePage />,
+        },
+        {
+          path: "add-user",
+          element: <AddUser />,
         },
       ],
     },

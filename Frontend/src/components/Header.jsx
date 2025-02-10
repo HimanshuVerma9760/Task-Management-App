@@ -9,10 +9,7 @@ import {
   Typography,
 } from "@mui/material";
 import {
-  Help,
   AccountCircle,
-  MessageSharp,
-  Settings,
   TaskSharp,
   Home,
   AddTask,
