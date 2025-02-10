@@ -22,4 +22,8 @@ export default class UserController {
   verifyEmail(@Param('to') to: string, @Param('em') em: string) {
     return this.userService.emailLinkVerify(to, em);
   }
+  @Get('/get-user-profile/:token')
+  getUserProfile(@Param("token") token:string){
+        return this.userService.getUserProfile(token);
+  }
 }

@@ -10,6 +10,7 @@ import SignUpPage from "./Pages/SignUpPage";
 import UserLoginPage from "./Pages/UserLoginPage";
 import UserProfilePage from "./Pages/UserProfilePage";
 import WelcomePage from "./Pages/WelcomePage";
+import UserProfileLoader from "./util/UserProfileLoader";
 
 export default function App() {
   const router = createBrowserRouter([
@@ -41,7 +42,8 @@ export default function App() {
           element: <CustomPaginationActionsTable />,
         },
         {
-          path: "/user-profile",
+          path: "/user-profile/",
+          loader: UserProfileLoader,
           element: <UserProfilePage />,
         },
         {

@@ -197,4 +197,13 @@ export default class UserService {
     }
     throw new UnauthorizedException('Invalid Credentials!');
   }
+
+  async getUserProfile(token: string) {
+    const key = process.env.SECRET_KEY || 'Himanshu2512';
+    let decodedToken: any;
+    decodedToken = jwt.verify(token, key);
+    if (decodedToken) {
+      return { decodedToken };
+    }
+  }
 }
