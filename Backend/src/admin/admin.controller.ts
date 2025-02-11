@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import AdminService from './admin.service';
 import adminDTO, { adminSignInDTO } from 'src/dto/admin.dto';
 import { userSignInDTO } from 'src/dto/user.dto';
@@ -15,5 +15,22 @@ export default class AdminController {
   @Post('/admin-login')
   adminLogin(@Body() admin: adminSignInDTO) {
     return this.adminService.adminLogin(admin.userName, admin.password);
+  }
+  @Get('/remove-user/:id/:token')
+  removeUser(@Param("id") id: string, @Param("token") token:string) {
+    return this.adminService.removeUser(id, token);
+  }
+  @Get('/block-user/:id/:token')
+  blockUser(@Param("id") id: string, @Param("token") token:string) {
+    return this.adminService.blockUser(id, token);
+  }
+  @Get('/get-users/:to/:searchedData')
+  async getTasks(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number,
+    @Param('to') to: string,
+    @Param('searchedData') searchedData: string,
+  ) {
+    return this.adminService.getAllUsers(page, limit, to, searchedData);
   }
 }

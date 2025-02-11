@@ -4,7 +4,6 @@ import {
   Visibility,
   VisibilityOff,
 } from "@mui/icons-material";
-const Conn = import.meta.env.VITE_CONN_URI;
 import {
   Box,
   Button,
@@ -23,7 +22,6 @@ import { useEffect, useState } from "react";
 import { Form } from "react-router-dom";
 import ModalContent from "../components/Modal/ModalContent";
 import useAuth from "../util/hooks/useAuth";
-// import CustomPaginationActionsTable from "../components/CustomPaginationActionsTable";
 import WelcomePage from "./WelcomePage";
 
 export default function SignUpPage() {

@@ -14,6 +14,7 @@ import UserProfileLoader from "./util/UserProfileLoader";
 import AdminWelcomePage from "./Pages/Admin/Pages/AdminWelcomePage";
 import AdminHeader from "./Pages/Admin/Components/AdminHeader";
 import AddUser from "./Pages/Admin/Pages/AddUser";
+import RemoveBlockUser from "./Pages/Admin/Pages/RemoveBlockUser";
 
 export default function App() {
   const router = createBrowserRouter([
@@ -66,6 +67,10 @@ export default function App() {
         {
           path: "add-user",
           element: <AddUser />,
+        },
+        {
+          path: "remove-block-user",
+          element: <RemoveBlockUser />,
         },
       ],
     },

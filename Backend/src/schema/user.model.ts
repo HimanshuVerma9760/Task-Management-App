@@ -23,9 +23,13 @@ export const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now(),
   },
-  isVerified:{
-    type:Boolean,
-    default:false
+  isVerified: {
+    type: Boolean,
+    default: false,
+  },
+  isBlocked: {
+    type: Boolean,
+    default: false,
   },
   tasks: [
     {

@@ -9,11 +9,14 @@ import { adminSchema } from 'src/schema/admin.model';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 import adminDTO from 'src/dto/admin.dto';
+import { userSchema } from 'src/schema/user.model';
+import { skip } from 'node:test';
 
 @Injectable()
 export default class AdminService {
   constructor(
     @InjectModel('admin') private adminModel: Model<typeof adminSchema>,
+    @InjectModel('users') private userModel: Model<typeof userSchema>,
   ) {}
 
   async addAdmin(admin: adminDTO) {
@@ -78,6 +81,79 @@ export default class AdminService {
     } catch (error) {
       console.log(error);
       throw new UnauthorizedException('Not Authorised!');
+    }
+  }
+  async removeUser(id: string, token: string) {
+    const key = process.env.ADMIN_KEY || 'Himanshu2512admin';
+    try {
+      const verifyToken = jwt.verify(token, key);
+    } catch (error) {
+      throw new UnauthorizedException('Not Authorised!');
+    }
+    const result = await this.userModel.findByIdAndDelete(id);
+    if (result?.isModified) {
+      return { response: true };
+    } else {
+      throw new HttpException('Some error Occurred!', 404);
+    }
+  }
+  async blockUser(id: string, token: string) {
+    const key = process.env.ADMIN_KEY || 'Himanshu2512admin';
+    try {
+      const verifyToken = jwt.verify(token, key);
+    } catch (error) {
+      throw new UnauthorizedException('Not Authorised!');
+    }
+    const result = await this.userModel.findByIdAndUpdate(id, {
+      $set: {
+        isBlocked: true,
+      },
+    });
+    if (result?.isModified) {
+      return { response: true };
+    } else {
+      throw new HttpException('Some error Occurred!', 404);
+    }
+  }
+  async getAllUsers(
+    page: number,
+    limit: number,
+    to: string,
+    searchedData: string,
+  ) {
+    const skip = (page - 1) * limit;
+    const key = process.env.ADMIN_KEY || 'Himanshu2512admin';
+    let allUsers: any;
+    let totalUsers: number;
+    let verifiedToken: any;
+    try {
+      verifiedToken = jwt.verify(to, key);
+    } catch (error) {
+      throw new UnauthorizedException('Not Authorized!');
+    }
+    if (!verifiedToken) {
+      throw new UnauthorizedException('Not Authorized!');
+    }
+    allUsers = await this.userModel.find().skip(skip).limit(limit).exec();
+    totalUsers = await this.userModel.find().countDocuments().exec();
+    if (allUsers) {
+      let myUsers: any;
+      if (allUsers.length > 0) {
+        if (searchedData === 'all') {
+          myUsers = allUsers;
+          return { myUsers, totalUsers };
+        }
+        myUsers = allUsers.filter((eachUser) => {
+          return eachUser.fullName.startsWith(searchedData);
+        });
+        totalUsers = myUsers.length;
+        return { myUsers, totalUsers };
+      } else {
+        console.log('No Users found');
+        throw new HttpException('No users Found!!', 404);
+      }
+    } else {
+      throw new HttpException('Internal Server Error!!', 500);
     }
   }
 }

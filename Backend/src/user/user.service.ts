@@ -174,12 +174,16 @@ export default class UserService {
       throw new UnauthorizedException('Invalid Credentials!');
     }
     if (user) {
+      if (user.isBlocked) {
+        return { blocked: true };
+      }
       const checkPass = await bcrypt.compare(password, user.password);
       if (checkPass) {
         if (!user.isVerified) {
           return {
             message: 'Kindly verify your email to login!',
             response: 'not verified',
+            blocked: false,
           };
         }
         const tokenData = {
@@ -191,7 +195,7 @@ export default class UserService {
         const token = jwt.sign(tokenData, `${process.env.SECRET_KEY}`, {
           expiresIn: '1h',
         });
-        return { response: true, token };
+        return { response: true, token, blocked: false };
       }
       throw new UnauthorizedException('Invalid Credentials!');
     }

@@ -27,20 +27,6 @@ import ModalContent from "../../../components/Modal/ModalContent";
 import AdminWelcomePage from "./AdminWelcomePage";
 
 export default function AddUser() {
-  //   const [isLoading, setIsLoading] = useState(true);
-  //   const [isLoggedIn, setIsLoggedIn] = useState(true);
-
-  //   useEffect(() => {
-  //     async function checkAuth() {
-  //       const verifiedUser = await useAdminAuth();
-  //       if (!verifiedUser.response) {
-  //         setIsLoggedIn(false);
-  //         setShowSignupPrompt(true);
-  //       }
-  //       setIsLoading(false);
-  //     }
-  //     checkAuth();
-  //   }, []);
   const [showSignupPrompt, setShowSignupPrompt] = useState(false);
 
   const [userName, setUserName] = useState("");
@@ -74,7 +60,6 @@ export default function AddUser() {
       message: "",
     },
   });
-
   const handleCloseSignupPrompt = () => {
     setShowSignupPrompt(false);
   };
@@ -317,9 +302,7 @@ export default function AddUser() {
     if (!response.ok) {
       setMessage("Error! while signup");
     } else {
-      setMessage("Sign up Successfull");
-      setShowSignupPrompt(true);
-      setIsSignedUp(true);
+      setMessage("User Added Successfully");
     }
   };
 
@@ -470,7 +453,7 @@ export default function AddUser() {
                 }
               />
               <Button disabled={!isChecked} type="submit">
-                Sign up
+                Add User
               </Button>
             </Grid2>
           </Form>

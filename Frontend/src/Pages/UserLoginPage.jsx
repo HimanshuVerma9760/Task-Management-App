@@ -26,6 +26,7 @@ export default function UserLoginPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isVerified, setIsVerified] = useState(true);
   const [showSignupPrompt, setShowSignupPrompt] = useState(false);
+  const [showBlockedPrompt, setShowBlockedPrompt] = useState(false);
 
   useEffect(() => {
     async function checkLogin() {
@@ -149,6 +150,10 @@ export default function UserLoginPage() {
     });
     if (response.ok) {
       const result = await response.json();
+      if (result.blocked) {
+        setShowBlockedPrompt(true);
+        return;
+      }
       if (result.response !== "not verified") {
         localStorage.setItem("token", result.token);
         nav("/welcome-user");
@@ -201,6 +206,9 @@ export default function UserLoginPage() {
   const handleCloseSignupPrompt = () => {
     setShowSignupPrompt(false);
   };
+  const handleCloseBlockedPrompt = () => {
+    setShowBlockedPrompt(false);
+  };
   if (isLoggedIn) {
     return (
       <ModalContent
@@ -225,6 +233,19 @@ export default function UserLoginPage() {
         }}
         btn={{ text: "Resend", loc: null }}
         type="btn"
+      />
+    );
+  }
+  if (showBlockedPrompt) {
+    return (
+      <ModalContent
+        isOpen={showBlockedPrompt}
+        onClose={handleCloseBlockedPrompt}
+        message={{
+          message: "Blocked!",
+          caption: "Kindly talk to Admin!",
+        }}
+        btn={{ text: "Go to Home", loc: "/" }}
       />
     );
   }
@@ -303,6 +324,7 @@ export default function UserLoginPage() {
             </Button>
             <BootstrapTooltip title="Only for Admins">
               <Button
+                type="button"
                 onClick={adminSubmitHandler}
                 sx={{
                   paddingLeft: "1rem",

@@ -1,5 +1,6 @@
 import {
   Block,
+  Home,
   Logout,
   People,
   PersonAdd,
@@ -83,7 +84,9 @@ export default function AdminHeader() {
   if (isLoading) {
     return (
       <>
-        <CircularProgress />
+        <Typography align="center">
+          <CircularProgress />
+        </Typography>
       </>
     );
   }
@@ -103,6 +106,13 @@ export default function AdminHeader() {
           <Typography variant="h3">Welcome Admin</Typography>
         </Grid2>
         <Grid2 container sx={{ alignItems: "center", gap: "1rem" }}>
+          <LightTooltip title="Home">
+            <IconButton>
+              <Link to="/admin" style={{ color: "white" }}>
+                <Home />
+              </Link>
+            </IconButton>
+          </LightTooltip>
           <LightTooltip title="Add User">
             <IconButton>
               <Link to="add-user" style={{ color: "white" }}>
@@ -112,7 +122,7 @@ export default function AdminHeader() {
           </LightTooltip>
           <LightTooltip title="Remove User">
             <IconButton>
-              <Link style={{ color: "white" }}>
+              <Link to="remove-block-user" style={{ color: "white" }}>
                 <PersonRemove />
               </Link>
             </IconButton>
@@ -121,13 +131,6 @@ export default function AdminHeader() {
             <IconButton>
               <Link style={{ color: "white" }}>
                 <Block />
-              </Link>
-            </IconButton>
-          </LightTooltip>
-          <LightTooltip title="All Users">
-            <IconButton>
-              <Link style={{ color: "white" }}>
-                <People />
               </Link>
             </IconButton>
           </LightTooltip>
